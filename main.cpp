@@ -1,10 +1,10 @@
 #include <mod/amlmod.h>
 #include <mod/logger.h>
 #include <mod/config.h>
+#include <string>
 
 
-
-MYMODCFG(chzbrgr.hudcustomizer, HUD Customizer, 1.0, cheeseburger)
+MYMODCFG(chzbrgr.hudcustomizer, HUD Customizer, 1.1, cheeseburger)
 NEEDGAME(com.rockstargames.gtasa)
 BEGIN_DEPLIST()
     ADD_DEPENDENCY_VER(net.rusjj.aml, 1.2.1)
@@ -29,6 +29,7 @@ extern "C" void OnModLoad()
     float breathWidth = cfg->GetFloat("Breath", 0.095f, "Width");
     float breathPosY = cfg->GetFloat("Breath", 0.675f, "PosY");
     float wantedMargin = cfg->GetFloat("Margin", -0.15f, "Wanted");
+    float wantedBlinkOpacity = cfg->GetFloat("BlinkOpacity", 0.8f, "Wanted");
     float wantedBG = cfg->GetFloat("BGOpacity", 0.8f, "Wanted");
     float arrowScale = cfg->GetFloat("SwipeArrowScale", 0.2f, "WeaponScroll");
     float arrowScale2 = arrowScale * -1.0f;
@@ -38,6 +39,8 @@ extern "C" void OnModLoad()
     float moneyScale = cfg->GetFloat("Money", 0.00525f, "TextScale");
     float ammoPosY = cfg->GetFloat("Ammo", 0.9f, "PosY");
     float ammoScale = cfg->GetFloat("Ammo", 0.425f, "TextScale");
+    const char* ammoFormat = cfg->GetString("Ammo", "%d-%d", "Format");
+    const char* clockFormat = cfg->GetString("Clock", "%02d:%02d", "Format");
     // Write configuration
     cfg->Bind("Health", healthLength, "Length")->GetFloat();
     cfg->Bind("Health", healthWidth, "Width")->GetFloat();
@@ -49,6 +52,7 @@ extern "C" void OnModLoad()
     cfg->Bind("Breath", breathWidth, "Width")->GetFloat();
     cfg->Bind("Breath", breathPosY, "PosY")->GetFloat();
     cfg->Bind("Margin", wantedMargin, "Wanted")->GetFloat();
+    cfg->Bind("BlinkOpacity", wantedBlinkOpacity, "Wanted")->GetFloat();
     cfg->Bind("BGOpacity", wantedBG, "Wanted")->GetFloat();
     cfg->Bind("SwipeArrowScale", arrowScale, "WeaponScroll")->GetFloat();
     cfg->Bind("Clock", clockPosY, "PosY")->GetFloat();
@@ -57,6 +61,8 @@ extern "C" void OnModLoad()
     cfg->Bind("Money", moneyScale, "TextScale")->GetFloat();
     cfg->Bind("Ammo", ammoPosY, "PosY")->GetFloat();
     cfg->Bind("Ammo", ammoScale, "TextScale")->GetFloat();
+    cfg->Bind("Ammo", ammoFormat, "Format")->GetString();
+    cfg->Bind("Clock", clockFormat, "Format")->GetString();
 
     delete pCfgMyBestEntry;
     delete Config::pLastEntry;
@@ -85,11 +91,18 @@ extern "C" void OnModLoad()
         aml->WriteFloat(pGame + 0x2BD028, moneyScale);
         // Ammo
         aml->WriteFloat(pGame + 0x2BDF40, ammoPosY);
+        aml->Write(pGame + 0x2BDF18, ammoFormat);
         aml->WriteFloat(pGame + 0x2BDF3C, ammoScale);
         // Clock
         aml->WriteFloat(pGame + 0x2BD024, clockPosY);
+        aml->Write(pGame + 0x2BD5A8, clockFormat);
         // Pos X of Clock & Money
         aml->WriteFloat(pGame + 0x2BD020, clockmoneyPosX);
+        // Wanted
+        aml->WriteFloat(pGame + 0x2BE260, wantedMargin);
+        aml->WriteFloat(pGame + 0x2BE258, wantedBlinkOpacity);
+        aml->WriteFloat(pGame + 0x2BE250, wantedBG);
+        
     }
 }
 
